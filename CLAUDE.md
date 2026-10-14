@@ -32,4 +32,15 @@ public/                # GENERADO: no editar a mano
 
 ## Pendiente
 
-- [ ] Después, cancelar el alojamiento web de OVH (borra el WordPress: la copia está en `original/`).
+- [x] Zona de Cloudflare limpia de restos de OVH (`ftp`, TXT `1|www…` y `3|welcome` borrados el 2026-10-14).
+- [ ] Baja inmediata en OVH (cuenta gs832990-ovh) del alojamiento Perso `smagneu.cluster027.hosting.ovh.net`
+  (incluye la BD `smagneu375`, el MX Plan y la redirección `postmaster@`; el WordPress está copiado en `original/`)
+  y de la zona DNS de OVH de `smagnettech.com` (no se usa: los NS son de Cloudflare). Baja pedida el 2026-10-14
+  (quedó «al vencimiento», 2027-09-01) y baja inmediata confirmada el mismo día (alojamiento y MX Plan
+  `terminated`) + ticket de reembolso de la renovación (factura ES4415232, 71,88 € sin IVA). Zona DNS de OVH:
+  baja pedida 2026-10-14 (confirmar correo).
+- Zona Cloudflare: «Always Use HTTPS» activado y TLS mínimo 1.2 (2026-10-14). DNSSEC desactivado en Cloudflare y
+  en OVH (coherente); si se activa, el DS se pone en OVH o se deja para después de transferir el dominio.
+- [ ] **Dominio**: sigue en OVH (renovación automática, caduca el 2027-06-10). Transferirlo a Cloudflare Registrar
+  **antes** de esa fecha (p. ej. en abril-mayo de 2027): desbloquear en OVH, pedir el AuthCode, iniciar la
+  transferencia en Cloudflare (cobra 1 año, que se suma a la caducidad). Después, quitar la renovación en OVH.

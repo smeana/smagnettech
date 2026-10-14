@@ -18,6 +18,9 @@ public/                # GENERADO: no editar a mano
   `npx wrangler@4 dev --port 8790` para verlo → `npx wrangler@4 deploy`.
 - Cuenta Cloudflare sergiomeana20@gmail.com, Worker `smagnettech` con dominios propios `smagnettech.com` y `www`
   (www → 301 en `src/index.js`) desde el 2026-10-12; también en https://smagnettech.sergiomeana20.workers.dev.
+- **LinkedIn**: página de empresa https://www.linkedin.com/company/smagnet/ (ID 146739915, creada el 2026-10-14;
+  enlazada en el pie). El titular la administra pero **debe quedar oculto**: no poner su nombre en la web ni en la
+  página, no añadirla como experiencia en su perfil, no invitar contactos y publicar siempre como Smagnet.
 - Sin cookies propias. Fuentes de Google Fonts. **Formulario de contacto** en `/contact/` → `POST /api/contact`
   (`src/index.js`): valida, trampa antispam (`website`), límite 5/min por IP (ratelimit namespace 1006) y lo envía
   con **Cloudflare Email Sending** (binding `send_email` «EMAIL», remitente `info@`, «Responder» va a quien escribe).

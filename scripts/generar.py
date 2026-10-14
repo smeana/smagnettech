@@ -17,6 +17,7 @@ SALIDA = RAIZ / 'public'
 SUBIDAS = ORIGINAL / 'wp-content/uploads/2024/09'
 EMAIL = 'info@smagnettech.com'
 URL = 'https://smagnettech.com'
+LINKEDIN = 'https://www.linkedin.com/company/smagnet/'
 
 NAV = [('/', 'Home'), ('/services/', 'Services'), ('/about-us/', 'About'), ('/get-started/', 'Get Started'), ('/contact/', 'Contact')]
 
@@ -162,6 +163,7 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
       <a href="mailto:{EMAIL}">{EMAIL}</a>
       <a href="/contact/">Contact form</a>
       <a href="/get-started/">Free consultation</a>
+      <a href="{LINKEDIN}" target="_blank" rel="noopener">LinkedIn</a>
     </div>
     <div>
       <h4>Company</h4>

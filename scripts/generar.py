@@ -277,40 +277,54 @@ def servicios() -> None:
 
 def sobre() -> None:
     pagina('/about-us/', 'About Us | Smagnet',
-           'Smagnet LLC is a software, data and AI company with more than 12 years of experience in banking, '
-           'trading, e-commerce and the public sector.', f'''
+           'Smagnet is a software and data engineering consultancy in Miami Beach, Florida, building reliable, '
+           'data-intensive systems for finance, fintech and e-commerce.', f'''
 <section class="cabecera-pagina"><div class="contenedor">
   <p class="antetitulo">About Smagnet</p>
-  <h1>Engineering-led, results-driven</h1>
-  <p class="entradilla">Smagnet LLC delivers software engineering, data engineering and AI services that streamline
-  operations and turn data into decisions.</p>
+  <h1>Engineering for systems that have to work</h1>
+  <p class="entradilla">Smagnet is a software and data engineering consultancy based in Miami Beach, Florida. We design,
+  build and run data-intensive systems for companies where reliability, latency and data quality have a direct impact
+  on revenue.</p>
 </div></section>
 <section class="seccion"><div class="contenedor dos">
   <div>
     <h2>Our experience</h2>
-    <p>Smagnet is led by an electronic engineer specialized in software, with more than 12 years building production
-    systems as an architect, data engineer and quantitative developer.</p>
-    <p>Our track record includes payment platforms and Kafka architectures for HSBC, pricing libraries and data platforms for
-    Santander, real-time ETF valuation for Tradeweb (LSEG), machine-learning risk models for JP Morgan, a 120 TB cloud
-    migration and forecasting for Jaguar Land Rover, Azure data architecture for the EUIPO, Spark pipelines for
-    Adevinta, and low-latency market making for the crypto exchange Bit2Me. Since 2023 we have led Amazon advertising
-    and marketplace automation for brands selling in 11 countries.</p>
+    <p>Our team brings more than 12 years of hands-on experience as architects, data engineers and quantitative
+    developers, delivering production systems for investment banks, payment processors, asset managers, crypto
+    exchanges, e-commerce brands and public institutions across the US and Europe.</p>
+    <p>Representative work:</p>
+    <ul class="lista">
+      <li>Payment platforms and event-driven Kafka architectures for a global bank</li>
+      <li>Pricing libraries and data platforms for a European banking group</li>
+      <li>Real-time ETF valuation (iNAV) for an electronic trading venue</li>
+      <li>Machine-learning risk models for a global investment bank</li>
+      <li>A 120 TB data platform migration to Google Cloud, with demand forecasting, for an automotive manufacturer</li>
+      <li>Azure data architecture for an EU agency</li>
+      <li>Low-latency market making connected to 30+ crypto exchanges</li>
+      <li>Amazon advertising and marketplace automation for brands selling in 11 countries</li>
+    </ul>
   </div>
   <div class="caja">
     <h3>Certifications</h3>
     <ul><li>Google Cloud Certified Data Engineer</li><li>Microsoft Azure Fundamentals (AZ-900)</li>
     <li>Microsoft Azure Data Fundamentals (DP-900)</li></ul>
+    <h3>Industries</h3>
+    <ul><li>Banking and capital markets</li><li>Payments and fintech</li><li>Crypto and digital assets</li>
+    <li>E-commerce and Amazon sellers</li><li>Automotive</li><li>Public sector (EU)</li></ul>
     <h3>Languages</h3>
     <ul><li>English</li><li>Spanish</li></ul>
   </div>
 </div></section>
-<section class="seccion seccion--gris"><div class="contenedor tres">
-  <div><h3>Mission</h3><p>Empower businesses with software, data engineering and AI that streamline operations,
-  improve decision-making and unlock new opportunities for growth.</p></div>
-  <div><h3>Vision</h3><p>Be the technology partner companies trust to solve complex problems with systems that are
-  reliable, efficient and built to last.</p></div>
-  <div><h3>Why choose us</h3><p>Every business is different. We take a client-centric approach, tailoring each solution
-  to your goals, with senior engineering on every project.</p></div>
+<section class="seccion seccion--gris"><div class="contenedor">
+  <h2>How we work</h2>
+  <div class="tres">
+    <div><h3>Senior engineering</h3><p>The engineers who scope your project are the ones who build it. No hand-offs to
+    junior teams.</p></div>
+    <div><h3>Clear scope and cost</h3><p>Every engagement starts with a free consultation and a written proposal covering
+    scope, architecture, timeline and cost.</p></div>
+    <div><h3>Built for production</h3><p>We deliver in short iterations, document what we build so your team can own it,
+    and support it in production.</p></div>
+  </div>
 </div></section>
 {cta()}''')
 

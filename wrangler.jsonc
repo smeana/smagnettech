@@ -13,5 +13,10 @@
     "run_worker_first": true,
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "none"
-  }
+  },
+  // Formulario de contacto (POST /api/contact en src/index.js): Cloudflare Email Sending. El dominio tiene que estar
+  // dado de alta en Email Service → Email Sending (registros cf-bounce; no tocan el correo de Google).
+  "send_email": [{ "name": "EMAIL", "allowed_sender_addresses": ["info@smagnettech.com"] }],
+  // 5 mensajes por minuto e IP (namespaces 1001-1005 son de parejasdevalor y marketbycrypto)
+  "ratelimits": [{ "name": "LIMITE", "namespace_id": "1006", "simple": { "limit": 5, "period": 60 } }]
 }

@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Contact | Smagnet</title>
-<meta name="description" content="Contact Smagnet LLC: info@smagnettech.com.">
+<meta name="description" content="Contact Smagnet LLC: tell us about your project and we will reply within one business day.">
 <link rel="canonical" href="https://smagnettech.com/contact/">
 <meta property="og:title" content="Contact | Smagnet">
-<meta property="og:description" content="Contact Smagnet LLC: info@smagnettech.com.">
+<meta property="og:description" content="Contact Smagnet LLC: tell us about your project and we will reply within one business day.">
 <meta property="og:url" content="https://smagnettech.com/contact/">
 <meta property="og:image" content="https://smagnettech.com/assets/og.png">
 <meta name="theme-color" content="#000000">
@@ -35,17 +35,58 @@
   <p class="entradilla">Whether you have a question, need support or want to know how we can help, we would love to
   hear from you.</p>
 </div></section>
-<section class="seccion"><div class="contenedor dos">
-  <div class="caja">
-    <h3>Email</h3>
-    <p><a class="enlace" href="mailto:info@smagnettech.com">info@smagnettech.com</a></p>
-    <p>We usually reply within one business day.</p>
-  </div>
-  <div class="caja">
-    <h3>Company</h3>
-    <p>SMAGNET LLC<br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139, USA</p>
-  </div>
+<section class="seccion"><div class="contenedor contacto">
+  <form class="formulario caja" action="/api/contact" method="post">
+    <div class="formulario__fila">
+      <label>Name<input name="name" type="text" required maxlength="120" autocomplete="name"></label>
+      <label>Email<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
+    </div>
+    <div class="formulario__fila">
+      <label><span>Company <em>(optional)</em></span><input name="company" type="text" maxlength="120" autocomplete="organization"></label>
+      <label>Topic
+        <select name="topic" required>
+          <option value="" disabled selected>Choose one</option><option>Software Architecture & Engineering</option><option>Data Engineering</option><option>AI & Machine Learning</option><option>Amazon Ads & Marketplace Automation</option><option>Cloud & DevOps</option><option>Fintech & Quantitative Development</option><option>Other</option>
+        </select>
+      </label>
+    </div>
+    <label>Message<textarea name="message" required minlength="10" maxlength="5000" rows="7"
+      placeholder="Tell us about your project, goals and timeline"></textarea></label>
+    <!-- trampa antispam: invisible para las personas -->
+    <input class="trampa" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="formulario__check"><input name="consent" type="checkbox" required>
+      <span>I agree to the <a href="/privacy-policy/">Privacy Policy</a> and to Smagnet using my data only to reply to
+      this message.</span></label>
+    <button class="boton" type="submit">Send message</button>
+    <p class="formulario__estado" role="status" aria-live="polite"></p>
+  </form>
+  <aside>
+    <div class="caja">
+      <h3>Email</h3>
+      <p><a class="enlace" href="mailto:info@smagnettech.com">info@smagnettech.com</a></p>
+      <p>We usually reply within one business day.</p>
+      <h3>Company</h3>
+      <p>SMAGNET LLC<br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139, USA</p>
+    </div>
+  </aside>
 </div></section>
+<script>
+document.querySelector('.formulario').addEventListener('submit', async e => {
+  e.preventDefault()
+  const f = e.currentTarget, estado = f.querySelector('.formulario__estado'), boton = f.querySelector('button')
+  boton.disabled = true; boton.textContent = 'Sending…'; estado.className = 'formulario__estado'; estado.textContent = ''
+  try {
+    const r = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
+    const d = await r.json().catch(() => ({}))
+    if (!r.ok) throw new Error(d.error || 'The message could not be sent.')
+    f.reset(); estado.className = 'formulario__estado ok'
+    estado.textContent = 'Thank you! We have received your message and will reply within one business day.'
+  } catch (err) {
+    estado.className = 'formulario__estado error'
+    estado.textContent = err.message + ' You can also write to us at info@smagnettech.com.'
+  }
+  boton.disabled = false; boton.textContent = 'Send message'
+})
+</script>
 </main>
 <footer class="pie">
   <div class="contenedor pie__fila">
@@ -60,10 +101,12 @@
     <div>
       <h4>Get in touch</h4>
       <a href="mailto:info@smagnettech.com">info@smagnettech.com</a>
+      <a href="/contact/">Contact form</a>
       <a href="/get-started/">Free consultation</a>
     </div>
     <div>
-      <h4>Legal</h4>
+      <h4>Company</h4>
+      <a href="/sustainability/">Sustainability (SDGs)</a>
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms-and-conditions/">Terms and Conditions</a>
       <a href="/cookies-policy/">Cookies Policy</a>

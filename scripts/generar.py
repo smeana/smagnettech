@@ -160,10 +160,12 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
     <div>
       <h4>Get in touch</h4>
       <a href="mailto:{EMAIL}">{EMAIL}</a>
+      <a href="/contact/">Contact form</a>
       <a href="/get-started/">Free consultation</a>
     </div>
     <div>
-      <h4>Legal</h4>
+      <h4>Company</h4>
+      <a href="/sustainability/">Sustainability (SDGs)</a>
       <a href="/privacy-policy/">Privacy Policy</a>
       <a href="/terms-and-conditions/">Terms and Conditions</a>
       <a href="/cookies-policy/">Cookies Policy</a>
@@ -284,12 +286,12 @@ def sobre() -> None:
 <section class="seccion"><div class="contenedor dos">
   <div>
     <h2>Our experience</h2>
-    <p>Smagnet was founded by Sergio Meana, an electronic engineer specialized in software with more than 12 years
-    building production systems as an architect, data engineer and quantitative developer.</p>
-    <p>His work includes payment platforms and Kafka architectures for HSBC, pricing libraries and data platforms for
+    <p>Smagnet is led by an electronic engineer specialized in software, with more than 12 years building production
+    systems as an architect, data engineer and quantitative developer.</p>
+    <p>Our track record includes payment platforms and Kafka architectures for HSBC, pricing libraries and data platforms for
     Santander, real-time ETF valuation for Tradeweb (LSEG), machine-learning risk models for JP Morgan, a 120 TB cloud
     migration and forecasting for Jaguar Land Rover, Azure data architecture for the EUIPO, Spark pipelines for
-    Adevinta, and low-latency market making for the crypto exchange Bit2Me. Since 2023 he has led Amazon advertising
+    Adevinta, and low-latency market making for the crypto exchange Bit2Me. Since 2023 we have led Amazon advertising
     and marketplace automation for brands selling in 11 countries.</p>
   </div>
   <div class="caja">
@@ -325,25 +327,157 @@ def empezar() -> None:
 {cta()}''')
 
 
+# Formulario de contacto: lo recibe el Worker (POST /api/contact, src/index.js) y lo envía por correo a info@.
+# Con JS se envía con fetch y se muestra el resultado en la página; sin JS, el Worker redirige a /contact/thanks/.
+FORM_JS = '''<script>
+document.querySelector('.formulario').addEventListener('submit', async e => {
+  e.preventDefault()
+  const f = e.currentTarget, estado = f.querySelector('.formulario__estado'), boton = f.querySelector('button')
+  boton.disabled = true; boton.textContent = 'Sending…'; estado.className = 'formulario__estado'; estado.textContent = ''
+  try {
+    const r = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
+    const d = await r.json().catch(() => ({}))
+    if (!r.ok) throw new Error(d.error || 'The message could not be sent.')
+    f.reset(); estado.className = 'formulario__estado ok'
+    estado.textContent = 'Thank you! We have received your message and will reply within one business day.'
+  } catch (err) {
+    estado.className = 'formulario__estado error'
+    estado.textContent = err.message + ' You can also write to us at {EMAIL}.'
+  }
+  boton.disabled = false; boton.textContent = 'Send message'
+})
+</script>'''
+
+
 def contacto() -> None:
-    pagina('/contact/', 'Contact | Smagnet', 'Contact Smagnet LLC: info@smagnettech.com.', f'''
+    temas = ''.join(f'<option>{s["titulo"]}</option>' for s in SERVICIOS)
+    pagina('/contact/', 'Contact | Smagnet',
+           'Contact Smagnet LLC: tell us about your project and we will reply within one business day.', f'''
 <section class="cabecera-pagina"><div class="contenedor">
   <p class="antetitulo">Contact</p>
   <h1>Get in touch</h1>
   <p class="entradilla">Whether you have a question, need support or want to know how we can help, we would love to
   hear from you.</p>
 </div></section>
-<section class="seccion"><div class="contenedor dos">
-  <div class="caja">
-    <h3>Email</h3>
-    <p><a class="enlace" href="mailto:{EMAIL}">{EMAIL}</a></p>
-    <p>We usually reply within one business day.</p>
+<section class="seccion"><div class="contenedor contacto">
+  <form class="formulario caja" action="/api/contact" method="post">
+    <div class="formulario__fila">
+      <label>Name<input name="name" type="text" required maxlength="120" autocomplete="name"></label>
+      <label>Email<input name="email" type="email" required maxlength="200" autocomplete="email"></label>
+    </div>
+    <div class="formulario__fila">
+      <label><span>Company <em>(optional)</em></span><input name="company" type="text" maxlength="120" autocomplete="organization"></label>
+      <label>Topic
+        <select name="topic" required>
+          <option value="" disabled selected>Choose one</option>{temas}<option>Other</option>
+        </select>
+      </label>
+    </div>
+    <label>Message<textarea name="message" required minlength="10" maxlength="5000" rows="7"
+      placeholder="Tell us about your project, goals and timeline"></textarea></label>
+    <!-- trampa antispam: invisible para las personas -->
+    <input class="trampa" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="formulario__check"><input name="consent" type="checkbox" required>
+      <span>I agree to the <a href="/privacy-policy/">Privacy Policy</a> and to Smagnet using my data only to reply to
+      this message.</span></label>
+    <button class="boton" type="submit">Send message</button>
+    <p class="formulario__estado" role="status" aria-live="polite"></p>
+  </form>
+  <aside>
+    <div class="caja">
+      <h3>Email</h3>
+      <p><a class="enlace" href="mailto:{EMAIL}">{EMAIL}</a></p>
+      <p>We usually reply within one business day.</p>
+      <h3>Company</h3>
+      <p>SMAGNET LLC<br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139, USA</p>
+    </div>
+  </aside>
+</div></section>
+{FORM_JS.replace('{EMAIL}', EMAIL)}''')
+    pagina('/contact/thanks/', 'Message sent | Smagnet', 'Your message has been sent to Smagnet.', '''
+<section class="cabecera-pagina"><div class="contenedor">
+  <p class="antetitulo">Contact</p>
+  <h1>Thank you!</h1>
+  <p class="entradilla">We have received your message and will reply within one business day.</p>
+  <div class="botones"><a class="boton" href="/">Back to home</a></div>
+</div></section>
+<section class="seccion"></section>''')
+
+
+# Objetivos de Desarrollo Sostenible con los que se alinea el trabajo (sin aval ni certificación de la ONU), como las
+# páginas de compromiso de marketbycrypto y aerovik. Sin adjetivos verdes: solo lo que se hace de verdad.
+ODS_URL = 'https://sdgs.un.org/goals'
+ODS = [
+    ('9', 'Industry, Innovation and Infrastructure',
+     'We build reliable, well-documented digital infrastructure (data platforms, APIs and cloud systems) that our '
+     'clients can run and evolve for years, not throwaway prototypes.'),
+    ('8', 'Decent Work and Economic Growth',
+     'We automate repetitive work (reporting, stock control, campaign management) so teams spend their time on '
+     'decisions, and we help small sellers compete in global marketplaces.'),
+    ('12', 'Responsible Consumption and Production',
+     'We extend and modernize existing systems before rewriting them, and we size infrastructure for real demand '
+     'instead of buying capacity that sits idle.'),
+    ('13', 'Climate Action',
+     'Efficient code and right-sized cloud resources use less energy. We review idle servers, oversized clusters and '
+     'unnecessary data processing in every project, which lowers both the bill and the carbon footprint.'),
+]
+
+
+def sostenibilidad() -> None:
+    ods = ''.join(f'<article class="tarjeta"><p class="antetitulo">SDG {n}</p><h3>{t}</h3><p>{d}</p></article>'
+                  for n, t, d in ODS)
+    pagina('/sustainability/', 'Our Commitment to the SDGs | Smagnet',
+           'How Smagnet aligns its software, data and cloud work with the UN Sustainable Development Goals, and how '
+           'we keep the carbon footprint of our systems and this website low.', f'''
+<section class="cabecera-pagina"><div class="contenedor">
+  <p class="antetitulo">Sustainability</p>
+  <h1>Our commitment to the SDGs</h1>
+  <p class="entradilla">We align our work with the <a href="{ODS_URL}" target="_blank" rel="noopener">Sustainable
+  Development Goals</a> of the United Nations 2030 Agenda, applied to what we actually do: building software, data
+  and cloud systems.</p>
+</div></section>
+<section class="seccion"><div class="contenedor">
+  <div class="rejilla rejilla--dos">{ods}</div>
+  <p class="nota">Smagnet LLC is not endorsed or certified by the United Nations. This page explains how we align our
+  work with its goals.</p>
+</div></section>
+<section class="seccion seccion--gris"><div class="contenedor dos">
+  <div>
+    <h2>Carbon footprint</h2>
+    <p>Software has a physical cost: every server, query and page view uses electricity. In client projects we treat
+    efficiency as a requirement:</p>
+    <ul class="lista">
+      <li>Right-sizing and auto-scaling cloud resources, and switching off idle environments.</li>
+      <li>Processing only the data that is needed, incrementally instead of full reloads.</li>
+      <li>Choosing efficient languages and architectures (for example Rust for hot paths) where it matters.</li>
+      <li>Choosing cloud regions and providers that report their energy sources.</li>
+    </ul>
   </div>
   <div class="caja">
-    <h3>Company</h3>
-    <p>SMAGNET LLC<br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139, USA</p>
+    <h3>This website</h3>
+    <ul>
+      <li>Static pages served from Cloudflare’s edge network: no application servers or databases running for it.</li>
+      <li>No tracking scripts, advertising cookies or analytics.</li>
+      <li>Light pages with optimized images and a single stylesheet.</li>
+    </ul>
+    <p>You can check the estimated emissions of any page with the
+    <a href="https://www.websitecarbon.com/" target="_blank" rel="noopener">Website Carbon Calculator</a>.</p>
   </div>
-</div></section>''')
+</div></section>
+{cta()}''')
+
+
+# La política original decía que no se recogían datos; desde que hay formulario de contacto, se explica qué se hace.
+PRIVACIDAD_ORIGINAL = ('<h4><strong>1. No Collection of Personal Data</strong></h4>\n<p>We do not collect, store, or '
+                       'process any personal information from users on this website. This includes data from forms, '
+                       'sign-ups, user accounts, or payments.</p>')
+PRIVACIDAD_FORMULARIO = (
+    '<h4><strong>1. Personal Data</strong></h4>\n<p>We only process the personal data you send us through the '
+    f'<a href="/contact/">contact form</a> or by email: your name, email address, company (optional) and message. We '
+    'use it only to reply to you and to follow up on your request, we do not store it in a database on this website '
+    f'(the form is delivered by email to {EMAIL}), and we do not share it with third parties or use it for marketing. '
+    f'You can ask us to delete your messages at any time by writing to {EMAIL}. The website has no user accounts, '
+    'sign-ups or payments.</p>')
 
 
 def legal() -> None:
@@ -354,6 +488,9 @@ def legal() -> None:
         texto = max(bloques, key=len)
         texto = re.sub(r'\s(?:class|style|id)="[^"]*"', '', texto)
         texto = re.sub(r'<h1>[\s\S]*?</h1>', '', texto, count=1).strip()
+        if ruta == '/privacy-policy/':
+            texto = texto.replace(PRIVACIDAD_ORIGINAL, PRIVACIDAD_FORMULARIO)
+            assert PRIVACIDAD_FORMULARIO in texto, 'cambió el texto de la política de privacidad original'
         pagina(ruta, f'{titulo} | Smagnet', f'{titulo} of Smagnet LLC.', f'''
 <section class="cabecera-pagina"><div class="contenedor"><h1>{html.escape(titulo)}</h1></div></section>
 <section class="seccion"><div class="contenedor texto-legal">{texto}</div></section>''')
@@ -363,7 +500,7 @@ def recursos() -> None:
     a = SALIDA / 'assets'
     a.mkdir(parents=True)
     shutil.copy(RAIZ / 'src/site.css', a / 'site.css')
-    shutil.copy(SUBIDAS / 'Capture-removebg-preview-1-480x457.png', a / 'logo.png')
+    shutil.copy(RAIZ / 'src/img/logo-96.png', a / 'logo.png')  # 96 px (se muestra a 44): 17 KB en vez de 197 KB
     shutil.copy(SUBIDAS / 'augmented-reality-illustration-03@2x-980x980.png', a / 'heroe.png')
     shutil.copy(SUBIDAS / 'cropped-resize-32x32.png', a / 'icon-32.png')
     shutil.copy(SUBIDAS / 'cropped-resize-180x180.png', a / 'icon-180.png')
@@ -372,7 +509,7 @@ def recursos() -> None:
     # Logos de las firmas de correo (Gmail los carga de aquí): Smagnet y SGMIUM.
     shutil.copytree(RAIZ / 'src/firma', a / 'firma')
     (SALIDA / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {URL}/sitemap.xml\n')
-    rutas = ['/', '/services/', '/about-us/', '/get-started/', '/contact/', '/privacy-policy/',
+    rutas = ['/', '/services/', '/about-us/', '/get-started/', '/contact/', '/sustainability/', '/privacy-policy/',
              '/terms-and-conditions/', '/cookies-policy/']
     (SALIDA / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
@@ -389,6 +526,7 @@ def main() -> None:
     sobre()
     empezar()
     contacto()
+    sostenibilidad()
     legal()
     print('public/ generado')
 

@@ -1,6 +1,8 @@
 // Web estática de smagnettech.com (copia del WordPress de OVH, ver scripts/copiar-web.py).
 // Redirige las URLs antiguas de WordPress, recibe el formulario de contacto (POST /api/contact) y el resto lo
 // sirven los assets.
+// Parámetros de WordPress que Google aún rastrea (?p=1, ?feed=rss2, ?cat=1…): 301 a la portada, no copia con 200.
+const PARAMS_WP = ['p', 'feed', 'cat', 'author', 's', 'attachment_id', 'tag', 'm', 'preview']
 const PAGINAS = { 63: '/get-started/', 52: '/about-us/', 42: '/contact/', 88: '/privacy-policy/', 95: '/terms-and-conditions/', 101: '/cookies-policy/' }
 
 // Los mensajes del formulario llegan a info@ (alias de Google Workspace); «Responder» contesta a quien escribió.
@@ -11,13 +13,14 @@ const EMAIL_RE = /^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]{2,}$/
 export default {
   async fetch(request, env) {
     const url = new URL(request.url)
-    if (url.hostname === 'www.smagnettech.com') {
+    // www y *.workers.dev → dominio principal (evita contenido duplicado en Google).
+    if (url.hostname === 'www.smagnettech.com' || url.hostname.endsWith('.workers.dev')) {
       url.hostname = 'smagnettech.com'
       return Response.redirect(url.toString(), 301)
     }
     if (url.pathname === '/api/contact') return contacto(request, env)
     const id = url.searchParams.get('page_id')
-    if (id || url.searchParams.has('p') || url.searchParams.has('feed')) {
+    if (id || PARAMS_WP.some(p => url.searchParams.has(p))) {
       return Response.redirect(`${url.origin}${PAGINAS[id] ?? '/'}`, 301)
     }
     return env.ASSETS.fetch(request)

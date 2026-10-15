@@ -15,9 +15,12 @@ RAIZ = Path(__file__).resolve().parent.parent
 ORIGINAL = RAIZ / 'original'
 SALIDA = RAIZ / 'public'
 SUBIDAS = ORIGINAL / 'wp-content/uploads/2024/09'
+# Solo para quitarla de los textos legales copiados: la web no publica ninguna dirección de correo (atraía spam).
 EMAIL = 'info@smagnettech.com'
 URL = 'https://smagnettech.com'
 LINKEDIN = 'https://www.linkedin.com/company/smagnet/'
+# Cloudflare Turnstile del formulario (widget «smagnettech.com contacto», dominios smagnettech.com y localhost).
+TURNSTILE_SITEKEY = '0x4AAAAAAFXtGzYOZiitY2i5'
 
 NAV = [('/', 'Home'), ('/services/', 'Services'), ('/about-us/', 'About'), ('/get-started/', 'Get Started'), ('/contact/', 'Contact')]
 
@@ -166,7 +169,6 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
     </div>
     <div>
       <h4>Get in touch</h4>
-      <a href="mailto:{EMAIL}">{EMAIL}</a>
       <a href="/contact/">Contact form</a>
       <a href="/get-started/">Free consultation</a>
       <a class="pie__social" href="{LINKEDIN}" target="_blank" rel="noopener">{ICONO_LINKEDIN}LinkedIn</a>
@@ -194,7 +196,7 @@ def cta() -> str:
   <div class="contenedor">
     <h2>Let’s build the future together</h2>
     <p>Tell us what you need and we will set up a free consultation.</p>
-    <a class="boton" href="mailto:{EMAIL}?subject=Free%20consultation">Set up a free consultation</a>
+    <a class="boton" href="/contact/">Set up a free consultation</a>
   </div>
 </section>'''
 
@@ -351,12 +353,15 @@ def empezar() -> None:
 
 # Formulario de contacto: lo recibe el Worker (POST /api/contact, src/index.js) y lo envía por correo a info@.
 # Con JS se envía con fetch y se muestra el resultado en la página; sin JS, el Worker redirige a /contact/thanks/.
-FORM_JS = '''<script>
+FORM_JS = '''<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
 document.querySelector('.formulario').addEventListener('submit', async e => {
   e.preventDefault()
   const f = e.currentTarget, estado = f.querySelector('.formulario__estado'), boton = f.querySelector('button')
   boton.disabled = true; boton.textContent = 'Sending…'; estado.className = 'formulario__estado'; estado.textContent = ''
   try {
+    // Turnstile tarda unos segundos en dar el token: si aún no está, se espera (hasta 10 s) antes de enviar.
+    for (let i = 0; i < 40 && !f.querySelector('[name="cf-turnstile-response"]')?.value; i++) await new Promise(r => setTimeout(r, 250))
     const r = await fetch(f.action, { method: 'POST', body: new FormData(f), headers: { Accept: 'application/json' } })
     const d = await r.json().catch(() => ({}))
     if (!r.ok) throw new Error(d.error || 'The message could not be sent.')
@@ -364,9 +369,10 @@ document.querySelector('.formulario').addEventListener('submit', async e => {
     estado.textContent = 'Thank you! We have received your message and will reply within one business day.'
   } catch (err) {
     estado.className = 'formulario__estado error'
-    estado.textContent = err.message + ' You can also write to us at {EMAIL}.'
+    estado.textContent = err.message
   }
   boton.disabled = false; boton.textContent = 'Send message'
+  window.turnstile?.reset()  // cada token de Turnstile vale para un solo envío
 })
 </script>'''
 
@@ -402,20 +408,20 @@ def contacto() -> None:
     <label class="formulario__check"><input name="consent" type="checkbox" required>
       <span>I agree to the <a href="/privacy-policy/">Privacy Policy</a> and to Smagnet using my data only to reply to
       this message.</span></label>
+    <div class="cf-turnstile" data-sitekey="{TURNSTILE_SITEKEY}" data-theme="dark" data-appearance="interaction-only"></div>
     <button class="boton" type="submit">Send message</button>
     <p class="formulario__estado" role="status" aria-live="polite"></p>
   </form>
   <aside>
     <div class="caja">
-      <h3>Email</h3>
-      <p><a class="enlace" href="mailto:{EMAIL}">{EMAIL}</a></p>
+      <h3>Reply time</h3>
       <p>We usually reply within one business day.</p>
       <h3>Company</h3>
       <p>SMAGNET LLC<br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139, USA</p>
     </div>
   </aside>
 </div></section>
-{FORM_JS.replace('{EMAIL}', EMAIL)}''')
+{FORM_JS}''')
     pagina('/contact/thanks/', 'Message sent | Smagnet', 'Your message has been sent to Smagnet.', '''
 <section class="cabecera-pagina"><div class="contenedor">
   <p class="antetitulo">Contact</p>
@@ -495,11 +501,12 @@ PRIVACIDAD_ORIGINAL = ('<h4><strong>1. No Collection of Personal Data</strong></
                        'sign-ups, user accounts, or payments.</p>')
 PRIVACIDAD_FORMULARIO = (
     '<h4><strong>1. Personal Data</strong></h4>\n<p>We only process the personal data you send us through the '
-    f'<a href="/contact/">contact form</a> or by email: your name, email address, company (optional) and message. We '
+    '<a href="/contact/">contact form</a>: your name, email address, company (optional) and message. We '
     'use it only to reply to you and to follow up on your request, we do not store it in a database on this website '
-    f'(the form is delivered by email to {EMAIL}), and we do not share it with third parties or use it for marketing. '
-    f'You can ask us to delete your messages at any time by writing to {EMAIL}. The website has no user accounts, '
-    'sign-ups or payments.</p>')
+    '(the form is delivered to us by email), and we do not share it with third parties or use it for marketing. '
+    'You can ask us to delete your messages at any time through the <a href="/contact/">contact form</a>. The website '
+    'has no user accounts, sign-ups or payments. The form is protected against spam by Cloudflare Turnstile, which '
+    'checks that the request comes from a real browser without using cookies.</p>')
 
 
 def legal() -> None:
@@ -510,6 +517,9 @@ def legal() -> None:
         texto = max(bloques, key=len)
         texto = re.sub(r'\s(?:class|style|id)="[^"]*"', '', texto)
         texto = re.sub(r'<h1>[\s\S]*?</h1>', '', texto, count=1).strip()
+        # Sin la dirección de correo en la web (atraía spam): se contacta solo por el formulario.
+        texto = texto.replace(f'contact us at {EMAIL}', 'contact us through our <a href="/contact/">contact form</a>')
+        assert EMAIL not in texto, f'{ruta}: queda {EMAIL} en el texto legal'
         if ruta == '/privacy-policy/':
             texto = texto.replace(PRIVACIDAD_ORIGINAL, PRIVACIDAD_FORMULARIO)
             assert PRIVACIDAD_FORMULARIO in texto, 'cambió el texto de la política de privacidad original'
@@ -550,6 +560,9 @@ def main() -> None:
     contacto()
     sostenibilidad()
     legal()
+    con_correo = [str(f.relative_to(SALIDA)) for f in SALIDA.rglob('*') if f.suffix in ('.html', '.xml', '.txt')
+                  and '@smagnettech.com' in f.read_text(encoding='utf-8')]
+    assert not con_correo, f'direcciones de correo en la web: {con_correo}'
     print('public/ generado')
 
 

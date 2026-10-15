@@ -34,12 +34,13 @@ async function contacto(request, env) {
     json
       ? Response.json(error ? { error } : { ok: true }, { status })
       : error
-        ? new Response(`${error} You can also write to us at ${DESTINO}.`, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
+        ? new Response(error, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
         : Response.redirect(new URL('/contact/thanks/', request.url).toString(), 303)
 
-  // Solo desde la propia web (evita que otras páginas usen el formulario para mandar correo).
+  // Solo desde la propia web (evita que otras páginas o scripts usen el formulario): los navegadores siempre mandan
+  // Origin en un POST; sin él, o desde otro sitio, se rechaza.
   const origen = request.headers.get('Origin')
-  if (origen && new URL(origen).hostname !== new URL(request.url).hostname) return responder(403, 'Forbidden.')
+  if (!origen || new URL(origen).hostname !== new URL(request.url).hostname) return responder(403, 'Forbidden.')
 
   const ip = request.headers.get('CF-Connecting-IP') || 'local'
   if (env.LIMITE && !(await env.LIMITE.limit({ key: ip })).success) {
@@ -62,6 +63,13 @@ async function contacto(request, env) {
   }
   // Trampa antispam: los bots rellenan el campo oculto «website»; se responde como si se hubiera enviado.
   if (campo('website', 200)) return responder(200)
+  // Cloudflare Turnstile (widget «smagnettech.com contacto»; secreto en `wrangler secret`, en local .dev.vars con la
+  // clave de prueba): sin un token válido de un navegador real no se envía nada.
+  if (!(await humano(f.get('cf-turnstile-response'), ip, env))) {
+    return responder(403, 'Please complete the anti-spam check and try again.')
+  }
+  // El spam suele venir cargado de enlaces: con más de 3 se descarta en silencio.
+  if ((d.message.match(/https?:\/\/|www\./gi) || []).length > 3) return responder(200)
   if (!d.name || !EMAIL_RE.test(d.email) || d.message.length < 10) {
     return responder(400, 'Please fill in your name, a valid email and a message of at least 10 characters.')
   }
@@ -90,4 +98,21 @@ async function contacto(request, env) {
     return responder(502, 'The message could not be sent.')
   }
   return responder(200)
+}
+
+async function humano(token, ip, env) {
+  if (!token || !env.TURNSTILE_SECRET) return false
+  const body = new FormData()
+  body.append('secret', env.TURNSTILE_SECRET)
+  body.append('response', String(token))
+  if (ip !== 'local') body.append('remoteip', ip)
+  try {
+    const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body })
+    const v = await r.json()
+    if (!v.success) console.log('[contacto] Turnstile rechazado:', v['error-codes'])
+    return v.success === true
+  } catch (e) {
+    console.error('[contacto] Turnstile no responde:', e)
+    return false
+  }
 }

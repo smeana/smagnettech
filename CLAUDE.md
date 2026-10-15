@@ -31,7 +31,11 @@ public/                # GENERADO: no editar a mano
   Dominio dado de alta en Email Service → Email Sending el 2026-10-14 (sending subdomain `9e360c37008d4823824e26286dc59f2a`,
   registros `cf-bounce`, no tocan Google; **no** aplicar el DMARC `p=reject` que sugiere: el nuestro es `p=quarantine`).
   Probado en producción el 2026-10-14: llega a la bandeja de entrada de smeana@sgmium.com en 1 s con SPF, DKIM
-  (`smagnettech.com`) y DMARC en `pass`. Solo acepta envíos desde la propia web (cabecera `Origin`). En local los
+  (`smagnettech.com`) y DMARC en `pass`. Antispam (2026-10-15, llegaba mucho spam): **la web y LinkedIn no publican ninguna dirección de correo** (solo el
+  formulario; `generar.py` falla si aparece una), cabecera `Origin` obligatoria y de la propia web, **Cloudflare
+  Turnstile** (widget «smagnettech.com contacto», sitekey en `generar.py`, secreto en `wrangler secret`
+  `TURNSTILE_SECRET`; en local `.dev.vars` con la clave de prueba, que acepta todo) y mensajes con más de 3 enlaces
+  descartados en silencio. En local los
   correos van a `.wrangler/tmp/email/`.
   La política de privacidad se reescribe en `generar.py` (PRIVACIDAD_FORMULARIO) para explicar el formulario.
 - `/sustainability/`: compromiso con los ODS (9, 8, 12, 13) y huella de carbono, como en marketbycrypto/aerovik;

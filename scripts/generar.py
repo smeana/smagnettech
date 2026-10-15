@@ -145,7 +145,7 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
 <body>
 <header class="cabecera">
   <div class="contenedor cabecera__fila">
-    <a class="logo" href="/" aria-label="Smagnet home"><img src="/assets/logo.png" alt="Smagnet" width="44" height="42"></a>
+    <a class="logo" href="/" aria-label="Smagnet home"><img src="/assets/logo.png" alt="Smagnet" width="44" height="44"></a>
     <input type="checkbox" id="menu" class="menu__check" aria-label="Open menu">
     <label for="menu" class="menu__boton" aria-hidden="true"><span></span></label>
     <nav class="menu">{nav}</nav>
@@ -157,7 +157,7 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
 <footer class="pie">
   <div class="contenedor pie__fila">
     <div>
-      <img src="/assets/logo.png" alt="" width="40" height="38">
+      <img src="/assets/logo.png" alt="" width="40" height="40">
       <p><strong>SMAGNET LLC</strong><br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139</p>
     </div>
     <div>
@@ -522,12 +522,11 @@ def recursos() -> None:
     a = SALIDA / 'assets'
     a.mkdir(parents=True)
     shutil.copy(RAIZ / 'src/site.css', a / 'site.css')
-    shutil.copy(RAIZ / 'src/img/logo-96.png', a / 'logo.png')  # 96 px (se muestra a 44): 17 KB en vez de 197 KB
+    shutil.copy(RAIZ / 'src/img/logo-96.png', a / 'logo.png')  # 96 px (se muestra a 44). Logos e iconos: scripts/logo.py
     shutil.copy(SUBIDAS / 'augmented-reality-illustration-03@2x-980x980.png', a / 'heroe.png')
-    shutil.copy(SUBIDAS / 'cropped-resize-32x32.png', a / 'icon-32.png')
-    shutil.copy(SUBIDAS / 'cropped-resize-180x180.png', a / 'icon-180.png')
-    shutil.copy(SUBIDAS / 'cropped-resize-270x270.png', a / 'og.png')
-    shutil.copy(SUBIDAS / 'cropped-resize-32x32.png', SALIDA / 'favicon.ico')
+    for f in ('icon-32.png', 'icon-180.png', 'og.png'):
+        shutil.copy(RAIZ / 'src/img' / f, a / f)
+    shutil.copy(RAIZ / 'src/img/favicon.ico', SALIDA / 'favicon.ico')
     # Logos de las firmas de correo (Gmail los carga de aquí): Smagnet y SGMIUM.
     shutil.copytree(RAIZ / 'src/firma', a / 'firma')
     (SALIDA / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nSitemap: {URL}/sitemap.xml\n')

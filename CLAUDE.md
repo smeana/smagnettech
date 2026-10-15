@@ -7,7 +7,7 @@ Web estática de SMAGNET LLC (servicios de software, datos, IA, Amazon Ads, clou
 scripts/generar.py     # genera public/ (HTML + CSS). Textos de servicios: CV del titular (~/Documents/CV)
 scripts/copiar-web.py  # copia del WordPress original en original/ (de ahí salen imágenes y textos legales)
 src/site.css           # estilos (se copian a public/assets/site.css)
-media/                 # logo maestro (logo-smagnet-maestro.png) → scripts/logo.py genera todas sus versiones (web, favicon, LinkedIn, firma); portada de LinkedIn (fondo portada-fondo.png + texto: scripts/portada-linkedin.py); no se publica
+media/                 # logos maestros (símbolo logo-smagnet-maestro.png y horizontal logo-texto-maestro.png) → scripts/logo.py genera todas las versiones (web, favicon, LinkedIn, firma); portada de LinkedIn (fondo portada-fondo.png + logo horizontal: scripts/portada-linkedin.py); no se publica
 src/index.js           # Worker: redirige www y las URLs antiguas de WordPress (?page_id=N) con 301 y recibe el formulario
 src/img/               # imágenes propias de la web (logo de 96 px de la cabecera)
 original/              # copia estática del WordPress tal como estaba (referencia, no se publica)

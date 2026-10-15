@@ -23,7 +23,7 @@ public/                # GENERADO: no editar a mano
   `smagnettech.com` el `www`, `*.workers.dev` y los parámetros viejos de WordPress (`?p=`, `?feed=`, `?cat=`…) para que
   Google no vea copias de la web.
 - **LinkedIn**: página de empresa https://www.linkedin.com/company/smagnet/ (ID 146739915, creada el 2026-10-14;
-  enlazada en el pie; dominio de correo `smagnettech.com` añadido el 2026-10-14 en Settings → Job posting). El titular la administra pero **debe quedar oculto**: no poner su nombre en la web ni en la
+  enlazada en el pie; dominio de correo `smagnettech.com` añadido el 2026-10-14 en Settings → Job posting; Super admins desde el 2026-10-15: Daniel Cruz Andrades y Juan Alvarez Carrasco, de operaciones). El titular la administra pero **debe quedar oculto**: no poner su nombre en la web ni en la
   página, no añadirla como experiencia en su perfil, no invitar contactos y publicar siempre como Smagnet.
 - Sin cookies propias. Fuentes de Google Fonts. **Formulario de contacto** en `/contact/` → `POST /api/contact`
   (`src/index.js`): valida, trampa antispam (`website`), límite 5/min por IP (ratelimit namespace 1006) y lo envía

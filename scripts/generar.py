@@ -148,7 +148,7 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
 <body>
 <header class="cabecera">
   <div class="contenedor cabecera__fila">
-    <a class="logo" href="/" aria-label="Smagnet home"><img src="/assets/logo-texto.png" alt="Smagnet" width="168" height="40"></a>
+    <a class="logo" href="/" aria-label="Smagnet home"><img src="/assets/logo-texto.png" alt="Smagnet" width="202" height="48"></a>
     <input type="checkbox" id="menu" class="menu__check" aria-label="Open menu">
     <label for="menu" class="menu__boton" aria-hidden="true"><span></span></label>
     <nav class="menu">{nav}</nav>
@@ -160,7 +160,7 @@ def pagina(ruta: str, titulo: str, descripcion: str, cuerpo: str) -> None:
 <footer class="pie">
   <div class="contenedor pie__fila">
     <div>
-      <img src="/assets/logo-texto.png" alt="" width="152" height="36">
+      <img src="/assets/logo-texto.png" alt="" width="185" height="44">
       <p><strong>SMAGNET LLC</strong><br>EIN: 61-2193900<br>407 Lincoln Road, Suite 12N<br>Miami Beach, FL 33139</p>
     </div>
     <div>
